@@ -1,4 +1,5 @@
 ﻿using AspNet_Core6.Fundamentals.Data;
+using AspNet_Core6.Fundamentals.Extensions;
 using AspNet_Core6.Fundamentals.Models;
 using AspNet_Core6.Fundamentals.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +14,15 @@ namespace AspNet_Core6.Fundamentals.Controllers
         [HttpGet("categories")]
         public async Task<IActionResult> GetAsync([FromServices] BlogDataContext context)
         {
-            var categories = await context.Categories.ToListAsync();
-
-            return Ok(categories);
+            try
+            {
+                var categories = await context.Categories.ToListAsync();
+                return Ok(value: new ResultViewModel<List<Category>>(categories));
+            }
+            catch
+            {
+                return StatusCode(500, value: new ResultViewModel<List<Category>>(error: "Internal Server Failure."));
+            }
         }
 
         [HttpGet("categories/{id}")]
@@ -23,24 +30,27 @@ namespace AspNet_Core6.Fundamentals.Controllers
         {
             try
             {
-                var categoryId = await context.Categories.FirstOrDefaultAsync(x => x.Id.Equals(id));
+                var categoryById = await context.Categories.FirstOrDefaultAsync(x => x.Id.Equals(id));
 
-                if (categoryId == null)
+                if (categoryById == null)
                 {
-                    return NotFound();
+                    return NotFound(value: new ResultViewModel<Category>(error: "Category not found."));
                 }
 
-                return Ok(categoryId);
+                return Ok(new ResultViewModel<Category>(categoryById));
             }
-            catch (ArgumentException ex)
+            catch
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, value: new ResultViewModel<Category>(error: "Internal Server Failure."));
             }
         }
 
         [HttpPost("categories")]
         public async Task<IActionResult> PostAsync([FromServices] BlogDataContext context, [FromBody] EditorCategoryViewModel categoryViewModel)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(error: new ResultViewModel<Category>(ModelState.GetErrors()));
+
             try
             {
                 var category = new Category
@@ -50,13 +60,15 @@ namespace AspNet_Core6.Fundamentals.Controllers
                     Name = categoryViewModel.Name,
                     Slug = categoryViewModel.Slug.ToLower(),
                 };
+
                 await context.Categories.AddAsync(category);
                 await context.SaveChangesAsync();
-                return Created($"v1/categories/{category.Id}", category);
+
+                return Created($"v1/categories/{category.Id}", value: new ResultViewModel<Category>(category));
             }
-            catch (DbUpdateException ex)
+            catch (DbUpdateException)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, value: new ResultViewModel<Category>(error: "Unable to add category."));
             }
         }
 
@@ -69,7 +81,7 @@ namespace AspNet_Core6.Fundamentals.Controllers
 
                 if (categoryPut == null)
                 {
-                    return NotFound();
+                    return NotFound(value: new ResultViewModel<Category>(error: "Category not found."));
                 }
 
                 categoryPut.Name = categoryViewModel.Name;
@@ -78,11 +90,11 @@ namespace AspNet_Core6.Fundamentals.Controllers
                 context.Update(categoryPut);
                 await context.SaveChangesAsync();
 
-                return Ok(categoryPut);
+                return Ok(value: new ResultViewModel<Category>(categoryPut));
             }
-            catch (DbUpdateException ex)
+            catch (DbUpdateException)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, new ResultViewModel<Category>(error: "Unable to update category"));
             }
         }
 
@@ -95,16 +107,17 @@ namespace AspNet_Core6.Fundamentals.Controllers
 
                 if (category == null)
                 {
-                    return NotFound();
+                    return NotFound(value: new ResultViewModel<Category>(error: "Category not found."));
                 }
 
                 context.Remove(id);
                 await context.SaveChangesAsync();
-                return Ok(category);
+
+                return Ok(value: new ResultViewModel<Category>(category));
             }
-            catch (DbUpdateException ex)
+            catch
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, value: new ResultViewModel<Category>(error: "Unable to delete category"));
             }
         }
     }
