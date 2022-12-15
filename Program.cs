@@ -2,7 +2,14 @@ using AspNet_Core6.Fundamentals.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder
+    .Services
+    .AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.SuppressModelStateInvalidFilter = true;
+    });
+
 builder.Services.AddDbContext<BlogDataContext>();
 
 builder.Services.AddEndpointsApiExplorer();
