@@ -1,7 +1,7 @@
 ﻿using AspNet_Core6.Fundamentals.Data;
 using AspNet_Core6.Fundamentals.Extensions;
 using AspNet_Core6.Fundamentals.Models;
-using AspNet_Core6.Fundamentals.Services;
+using AspNet_Core6.Fundamentals.Services.Interfaces;
 using AspNet_Core6.Fundamentals.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,9 +12,10 @@ namespace AspNet_Core6.Fundamentals.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly TokenService _tokenService;
+        private readonly ITokenService _tokenService;
         private readonly BlogDataContext _blogDataContext;
-        public AccountController(TokenService tokenService, BlogDataContext blogDataContext)
+
+        public AccountController(ITokenService tokenService, BlogDataContext blogDataContext)
         {
             _tokenService = tokenService;
             _blogDataContext = blogDataContext;
@@ -74,12 +75,12 @@ namespace AspNet_Core6.Fundamentals.Controllers
 
             if (user == null)
             {
-                return StatusCode(401, new ResultViewModel<string>(error: "Usuário ou seha inválidos"));
+                return StatusCode(401, new ResultViewModel<string>(error: "User ou password invalid"));
             }
 
             if (!PasswordHasher.Verify(user.PasswordHash, loginViewModel.Password))
             {
-                return StatusCode(401, new ResultViewModel<string>(error: "Usuário ou seha inválidos"));
+                return StatusCode(401, new ResultViewModel<string>(error: "User ou password invalid"));
             }
 
             try
