@@ -1,6 +1,7 @@
 using AspNet_Core6.Fundamentals;
 using AspNet_Core6.Fundamentals.Data;
 using AspNet_Core6.Fundamentals.Services;
+using AspNet_Core6.Fundamentals.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -30,7 +31,7 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddDbContext<BlogDataContext>();
-builder.Services.AddTransient<TokenService>();
+builder.Services.AddTransient<ITokenService, TokenService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
