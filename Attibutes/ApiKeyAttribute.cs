@@ -10,7 +10,6 @@ namespace AspNet_Core6.Fundamentals.Attibutes
         {
             if (!context.HttpContext.Request.Query.TryGetValue(Configuration.ApiKeyName, out var apiKey))
             {
-
                 context.Result = new ContentResult
                 {
                     StatusCode = 401,
