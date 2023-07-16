@@ -22,10 +22,22 @@ namespace AspNet_Core6.Fundamentals.Data.Mappings
                 .HasColumnType("NVARCHAR")
                 .HasMaxLength(80);
 
-            builder.Property(x => x.Bio);
-            builder.Property(x => x.Email);
-            builder.Property(x => x.Image);
-            builder.Property(x => x.PasswordHash);
+            builder.Property(x => x.Bio)
+                .IsRequired(false);
+
+            builder.Property(x => x.Email)
+                .IsRequired()
+                .HasColumnName("Email")
+                .HasColumnType("VARCHAR")
+                .HasMaxLength(160);
+
+            builder.Property(x => x.Image)
+                .IsRequired(false);
+
+            builder.Property(x => x.PasswordHash)
+                .IsRequired()
+                .HasColumnName("PasswordHash")
+                .HasMaxLength(255);
 
             builder.Property(x => x.Slug)
                 .IsRequired()
