@@ -25,9 +25,7 @@ namespace AspNet_Core6.Fundamentals.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterViewModel registerViewModel)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(new ResultViewModel<string>(ModelState.GetErrors()));
-            }
 
             var user = new User
             {
@@ -64,9 +62,7 @@ namespace AspNet_Core6.Fundamentals.Controllers
         public async Task<IActionResult> Login([FromBody] LoginViewModel loginViewModel)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(new ResultViewModel<string>(ModelState.GetErrors()));
-            }
 
             var user = await _blogDataContext.Users
                 .AsNoTracking()
@@ -74,14 +70,10 @@ namespace AspNet_Core6.Fundamentals.Controllers
                 .FirstOrDefaultAsync(x => x.Email == loginViewModel.Email);
 
             if (user == null)
-            {
                 return StatusCode(401, new ResultViewModel<string>(error: "User ou password invalid"));
-            }
 
             if (!PasswordHasher.Verify(user.PasswordHash, loginViewModel.Password))
-            {
                 return StatusCode(401, new ResultViewModel<string>(error: "User ou password invalid"));
-            }
 
             try
             {

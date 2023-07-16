@@ -40,9 +40,7 @@ namespace AspNet_Core6.Fundamentals.Controllers
                 var categoryById = await _blogDataContext.Categories.FirstOrDefaultAsync(x => x.Id.Equals(id));
 
                 if (categoryById == null)
-                {
                     return NotFound(value: new ResultViewModel<Category>(error: "Category not found."));
-                }
 
                 return Ok(new ResultViewModel<Category>(categoryById));
             }
@@ -87,9 +85,7 @@ namespace AspNet_Core6.Fundamentals.Controllers
                 var categoryPut = await _blogDataContext.Categories.FirstOrDefaultAsync(x => x.Id.Equals(id));
 
                 if (categoryPut == null)
-                {
                     return NotFound(value: new ResultViewModel<Category>(error: "Category not found."));
-                }
 
                 categoryPut.Name = categoryViewModel.Name;
                 categoryPut.Slug = categoryViewModel.Slug;
@@ -113,9 +109,7 @@ namespace AspNet_Core6.Fundamentals.Controllers
                 var category = await _blogDataContext.Categories.FirstOrDefaultAsync(x => x.Id.Equals(id));
 
                 if (category == null)
-                {
                     return NotFound(value: new ResultViewModel<Category>(error: "Category not found."));
-                }
 
                 _blogDataContext.Remove(id);
                 await _blogDataContext.SaveChangesAsync();
