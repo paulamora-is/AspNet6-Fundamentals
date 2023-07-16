@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AspNetCore6.Fundamentals.Migrations
 {
     [DbContext(typeof(BlogDataContext))]
-    [Migration("20221208061955_CreateDatabase")]
-    partial class CreateDatabase
+    [Migration("20230716195009_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -152,7 +152,10 @@ namespace AspNetCore6.Fundamentals.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("VARCHAR")
+                        .HasColumnName("Email");
 
                     b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
@@ -164,7 +167,10 @@ namespace AspNetCore6.Fundamentals.Migrations
                         .HasColumnName("Name");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("PasswordHash");
 
                     b.Property<string>("Slug")
                         .IsRequired()
