@@ -11,12 +11,19 @@ namespace AspNet_Core6.Fundamentals.Controllers
     [Route("v1")]
     public class CategoryController : ControllerBase
     {
+        private readonly BlogDataContext _blogDataContext;
+
+        public CategoryController(BlogDataContext blogDataContext)
+        {
+            _blogDataContext = blogDataContext;
+        }
+
         [HttpGet("categories")]
-        public async Task<IActionResult> GetAsync([FromServices] BlogDataContext context)
+        public async Task<IActionResult> GetAsync()
         {
             try
             {
-                var categories = await context.Categories.ToListAsync();
+                var categories = await _blogDataContext.Categories.ToListAsync();
                 return Ok(value: new ResultViewModel<List<Category>>(categories));
             }
             catch
@@ -26,11 +33,11 @@ namespace AspNet_Core6.Fundamentals.Controllers
         }
 
         [HttpGet("categories/{id}")]
-        public async Task<IActionResult> GetByIdAsync([FromServices] BlogDataContext context, [FromRoute] int id)
+        public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
         {
             try
             {
-                var categoryById = await context.Categories.FirstOrDefaultAsync(x => x.Id.Equals(id));
+                var categoryById = await _blogDataContext.Categories.FirstOrDefaultAsync(x => x.Id.Equals(id));
 
                 if (categoryById == null)
                 {
@@ -46,7 +53,7 @@ namespace AspNet_Core6.Fundamentals.Controllers
         }
 
         [HttpPost("categories")]
-        public async Task<IActionResult> PostAsync([FromServices] BlogDataContext context, [FromBody] EditorCategoryViewModel categoryViewModel)
+        public async Task<IActionResult> PostAsync([FromBody] EditorCategoryViewModel categoryViewModel)
         {
             if (!ModelState.IsValid)
                 return BadRequest(error: new ResultViewModel<Category>(ModelState.GetErrors()));
@@ -61,8 +68,8 @@ namespace AspNet_Core6.Fundamentals.Controllers
                     Slug = categoryViewModel.Slug.ToLower(),
                 };
 
-                await context.Categories.AddAsync(category);
-                await context.SaveChangesAsync();
+                await _blogDataContext.Categories.AddAsync(category);
+                await _blogDataContext.SaveChangesAsync();
 
                 return Created($"v1/categories/{category.Id}", value: new ResultViewModel<Category>(category));
             }
@@ -73,11 +80,11 @@ namespace AspNet_Core6.Fundamentals.Controllers
         }
 
         [HttpPut("categories/{id}")]
-        public async Task<IActionResult> PutAsync([FromServices] BlogDataContext context, [FromRoute] int id, [FromBody] EditorCategoryViewModel categoryViewModel)
+        public async Task<IActionResult> PutAsync([FromRoute] int id, [FromBody] EditorCategoryViewModel categoryViewModel)
         {
             try
             {
-                var categoryPut = await context.Categories.FirstOrDefaultAsync(x => x.Id.Equals(id));
+                var categoryPut = await _blogDataContext.Categories.FirstOrDefaultAsync(x => x.Id.Equals(id));
 
                 if (categoryPut == null)
                 {
@@ -87,8 +94,8 @@ namespace AspNet_Core6.Fundamentals.Controllers
                 categoryPut.Name = categoryViewModel.Name;
                 categoryPut.Slug = categoryViewModel.Slug;
 
-                context.Update(categoryPut);
-                await context.SaveChangesAsync();
+                _blogDataContext.Update(categoryPut);
+                await _blogDataContext.SaveChangesAsync();
 
                 return Ok(value: new ResultViewModel<Category>(categoryPut));
             }
@@ -99,19 +106,19 @@ namespace AspNet_Core6.Fundamentals.Controllers
         }
 
         [HttpDelete("categories/{id}")]
-        public async Task<IActionResult> DeleteAsync([FromServices] BlogDataContext context, [FromRoute] int id)
+        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
         {
             try
             {
-                var category = await context.Categories.FirstOrDefaultAsync(x => x.Id.Equals(id));
+                var category = await _blogDataContext.Categories.FirstOrDefaultAsync(x => x.Id.Equals(id));
 
                 if (category == null)
                 {
                     return NotFound(value: new ResultViewModel<Category>(error: "Category not found."));
                 }
 
-                context.Remove(id);
-                await context.SaveChangesAsync();
+                _blogDataContext.Remove(id);
+                await _blogDataContext.SaveChangesAsync();
 
                 return Ok(value: new ResultViewModel<Category>(category));
             }
